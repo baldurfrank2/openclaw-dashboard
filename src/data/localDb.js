@@ -1,5 +1,8 @@
 const DB_NAME = "openclaw-dashboard";
 const DB_VERSION = 1;
+export const SEED_VERSION = 1;
+const SEED_VERSION_KEY = `${DB_NAME}-seed-version`;
+const STORE_NAMES = ["boards", "columns", "cards", "projects", "notes", "docs", "labels"];
 
 let dbPromise;
 
@@ -100,6 +103,24 @@ export const clearStore = (storeName) =>
   withStore(storeName, "readwrite", (store) => {
     store.clear();
   });
+
+const getStoredSeedVersion = () => {
+  try {
+    return localStorage.getItem(SEED_VERSION_KEY);
+  } catch (error) {
+    return null;
+  }
+};
+
+const setStoredSeedVersion = () => {
+  try {
+    localStorage.setItem(SEED_VERSION_KEY, String(SEED_VERSION));
+  } catch (error) {
+    // Ignore storage write errors.
+  }
+};
+
+const clearAllStores = async () => Promise.all(STORE_NAMES.map((store) => clearStore(store)));
 
 const now = () => new Date().toISOString();
 
@@ -233,11 +254,7 @@ const seedData = () => {
   return { boards, columns, cards, projects, notes, docs, labels };
 };
 
-export const seedIfNeeded = async () => {
-  const boards = await getAll("boards");
-  if (boards.length > 0) {
-    return;
-  }
+const applySeed = async () => {
   const data = seedData();
   await Promise.all([
     bulkUpsert("labels", data.labels),
@@ -248,6 +265,28 @@ export const seedIfNeeded = async () => {
     bulkUpsert("notes", data.notes),
     bulkUpsert("docs", data.docs)
   ]);
+};
+
+export const seedIfNeeded = async () => {
+  const storedVersion = getStoredSeedVersion();
+  if (storedVersion !== String(SEED_VERSION)) {
+    await clearAllStores();
+    await applySeed();
+    setStoredSeedVersion();
+    return;
+  }
+  const boards = await getAll("boards");
+  if (boards.length > 0) {
+    return;
+  }
+  await applySeed();
+  setStoredSeedVersion();
+};
+
+export const resetSeed = async () => {
+  await clearAllStores();
+  await applySeed();
+  setStoredSeedVersion();
 };
 
 export const makeId = (prefix) => `${prefix}-${crypto.randomUUID()}`;

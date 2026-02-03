@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  clearStore,
   getAll,
   makeId,
   removeById,
+  resetSeed,
   seedIfNeeded,
   upsert
 } from "./data/localDb";
@@ -266,15 +266,7 @@ function App() {
 
   const handleRefreshWorkspace = async () => {
     setLoading(true);
-    await Promise.all([
-      clearStore("boards"),
-      clearStore("columns"),
-      clearStore("cards"),
-      clearStore("projects"),
-      clearStore("notes"),
-      clearStore("docs"),
-      clearStore("labels")
-    ]);
+    await resetSeed();
     await loadData();
   };
 
@@ -593,6 +585,12 @@ function App() {
                 <span className="hidden sm:inline">Local workspace ready</span>
                 <span className="sm:hidden">Local only</span>
               </div>
+              <button
+                onClick={handleRefreshWorkspace}
+                className="btn-secondary rounded-full px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-200"
+              >
+                Reset data
+              </button>
               <div className="glass-subtle rounded-full px-4 py-2.5 text-xs font-semibold text-amber-200 uppercase tracking-[0.2em]">
                 Locked — ask Ex-Machina to edit
               </div>
