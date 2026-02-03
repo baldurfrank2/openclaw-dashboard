@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  clearStore,
   getAll,
   makeId,
   removeById,
@@ -108,31 +109,35 @@ function App() {
   const [filterNoteTag, setFilterNoteTag] = useState("all");
   const [filterDocTag, setFilterDocTag] = useState("all");
 
+  const loadData = async () => {
+    await seedIfNeeded();
+    const [boardsData, columnsData, cardsData, projectsData, notesData, docsData, labelsData] =
+      await Promise.all([
+        getAll("boards"),
+        getAll("columns"),
+        getAll("cards"),
+        getAll("projects"),
+        getAll("notes"),
+        getAll("docs"),
+        getAll("labels")
+      ]);
+    setBoards(boardsData);
+    setColumns(columnsData);
+    setCards(cardsData);
+    setProjects(projectsData);
+    setNotes(notesData);
+    setDocs(docsData);
+    setLabels(labelsData);
+    setLoading(false);
+  };
+
   useEffect(() => {
     let mounted = true;
-    const loadData = async () => {
-      await seedIfNeeded();
-      const [boardsData, columnsData, cardsData, projectsData, notesData, docsData, labelsData] =
-        await Promise.all([
-          getAll("boards"),
-          getAll("columns"),
-          getAll("cards"),
-          getAll("projects"),
-          getAll("notes"),
-          getAll("docs"),
-          getAll("labels")
-        ]);
+    const boot = async () => {
+      await loadData();
       if (!mounted) return;
-      setBoards(boardsData);
-      setColumns(columnsData);
-      setCards(cardsData);
-      setProjects(projectsData);
-      setNotes(notesData);
-      setDocs(docsData);
-      setLabels(labelsData);
-      setLoading(false);
     };
-    loadData();
+    boot();
     return () => {
       mounted = false;
     };
@@ -257,6 +262,20 @@ function App() {
     setNewBoardName("");
     setActiveBoardId(id);
     await upsert("boards", board);
+  };
+
+  const handleRefreshWorkspace = async () => {
+    setLoading(true);
+    await Promise.all([
+      clearStore("boards"),
+      clearStore("columns"),
+      clearStore("cards"),
+      clearStore("projects"),
+      clearStore("notes"),
+      clearStore("docs"),
+      clearStore("labels")
+    ]);
+    await loadData();
   };
 
   const handleUpdateBoard = async (boardId, updates) => {
@@ -574,6 +593,12 @@ function App() {
                 <span className="hidden sm:inline">Local workspace ready</span>
                 <span className="sm:hidden">Local only</span>
               </div>
+              <button
+                className="btn-secondary rounded-full px-4 py-2.5 text-sm font-semibold text-slate-200"
+                onClick={handleRefreshWorkspace}
+              >
+                Refresh workspace
+              </button>
               <button
                 className="btn-primary rounded-full px-5 py-2.5 text-sm font-semibold text-white"
                 onClick={handleAddBoard}
