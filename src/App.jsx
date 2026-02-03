@@ -593,18 +593,9 @@ function App() {
                 <span className="hidden sm:inline">Local workspace ready</span>
                 <span className="sm:hidden">Local only</span>
               </div>
-              <button
-                className="btn-secondary rounded-full px-4 py-2.5 text-sm font-semibold text-slate-200"
-                onClick={handleRefreshWorkspace}
-              >
-                Refresh workspace
-              </button>
-              <button
-                className="btn-primary rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-                onClick={handleAddBoard}
-              >
-                New board
-              </button>
+              <div className="glass-subtle rounded-full px-4 py-2.5 text-xs font-semibold text-amber-200 uppercase tracking-[0.2em]">
+                Locked — ask Ex-Machina to edit
+              </div>
             </div>
           </div>
         </header>
@@ -647,113 +638,43 @@ function App() {
                         </option>
                       ))}
                     </select>
-                    <button
-                      className="btn-secondary rounded-full px-4 py-2 text-xs font-medium text-slate-300"
-                      onClick={handleAddColumn}
-                    >
-                      + Column
-                    </button>
                   </>
                 }
               />
 
               {activeBoard && (
-                <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                  <input
-                    value={activeBoard.name}
-                    onChange={(event) =>
-                      handleUpdateBoard(activeBoard.id, { name: event.target.value })
-                    }
-                    placeholder="Board name"
-                    className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-500 flex-1"
-                  />
-                  <button
-                    className="btn-secondary rounded-xl px-4 py-2 text-sm text-rose-300"
-                    onClick={() => handleDeleteBoard(activeBoard.id)}
-                  >
-                    Delete board
-                  </button>
+                <div className="flex flex-col sm:flex-row gap-3 mb-6 text-sm text-slate-300">
+                  <div className="glass-subtle rounded-xl px-4 py-2 flex-1">
+                    Board: <span className="text-slate-100">{activeBoard.name}</span>
+                  </div>
                 </div>
               )}
-
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <input
-                  value={newBoardName}
-                  onChange={(event) => setNewBoardName(event.target.value)}
-                  placeholder="New board name"
-                  className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-500 flex-1"
-                />
-                <button
-                  className="btn-secondary rounded-xl px-4 py-2 text-sm text-slate-200"
-                  onClick={handleAddBoard}
-                >
-                  Create board
-                </button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <input
-                  value={newColumnName}
-                  onChange={(event) => setNewColumnName(event.target.value)}
-                  placeholder="Add column to active board"
-                  className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-500 flex-1"
-                />
-                <button
-                  className="btn-secondary rounded-xl px-4 py-2 text-sm text-slate-200"
-                  onClick={handleAddColumn}
-                >
-                  Add column
-                </button>
-              </div>
 
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {boardColumns.map((column) => (
                   <div
                     key={column.id}
                     className="kanban-column p-4"
-                    onDragOver={(event) => event.preventDefault()}
-                    onDrop={(event) => handleDropCard(event, column.id)}
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <input
-                        value={column.name}
-                        onChange={(event) => handleUpdateColumn(column.id, event.target.value)}
-                        className="bg-transparent text-sm font-semibold text-slate-200 focus:outline-none"
-                      />
+                      <p className="text-sm font-semibold text-slate-200">{column.name}</p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">
                           {(cardsByColumn.get(column.id) || []).length}
                         </span>
-                        <button
-                          className="text-xs text-rose-300"
-                          onClick={() => handleDeleteColumn(column.id)}
-                        >
-                          ✕
-                        </button>
                       </div>
                     </div>
                     <div className="space-y-3">
                       {(cardsByColumn.get(column.id) || []).map((card) => (
                         <div
                           key={card.id}
-                          className="glass-subtle task-card rounded-xl p-3.5 cursor-grab"
-                          draggable
-                          onDragStart={(event) => event.dataTransfer.setData("text/plain", card.id)}
+                          className="glass-subtle task-card rounded-xl p-3.5"
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <p className="text-sm font-medium text-white leading-snug">
                               {card.title}
                             </p>
-                            <button
-                              className="text-xs text-rose-300"
-                              onClick={() => handleDeleteCard(card.id)}
-                            >
-                              ✕
-                            </button>
                           </div>
-                          <p className="text-xs text-slate-400 mb-3">
-                            {card.description || "No details yet."}
-                          </p>
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <div className="flex flex-wrap gap-1">
                               {(card.labelIds || []).map((labelId) => (
@@ -764,65 +685,15 @@ function App() {
                               <span className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-[10px] font-medium">
                                 {card.owner ? card.owner[0] : "•"}
                               </span>
+                              <span>{card.owner || "Unassigned"}</span>
                               <span className={card.due === "Done" ? "text-emerald-400" : ""}>
-                                {card.due || ""}
+                                {card.due || "No due date"}
                               </span>
-                            </div>
-                          </div>
-                          <div className="mt-3 space-y-2">
-                            <input
-                              value={card.title}
-                              onChange={(event) => handleUpdateCard(card.id, { title: event.target.value })}
-                              className="glass-subtle rounded-lg px-2 py-1 text-xs text-slate-200 w-full"
-                              placeholder="Card title"
-                            />
-                            <textarea
-                              value={card.description}
-                              onChange={(event) => handleUpdateCard(card.id, { description: event.target.value })}
-                              className="glass-subtle rounded-lg px-2 py-1 text-xs text-slate-200 w-full h-16 resize-none"
-                              placeholder="Card details"
-                            />
-                            <input
-                              value={card.owner}
-                              onChange={(event) => handleUpdateCard(card.id, { owner: event.target.value })}
-                              className="glass-subtle rounded-lg px-2 py-1 text-xs text-slate-200 w-full"
-                              placeholder="Owner"
-                            />
-                            <input
-                              value={card.due}
-                              onChange={(event) => handleUpdateCard(card.id, { due: event.target.value })}
-                              className="glass-subtle rounded-lg px-2 py-1 text-xs text-slate-200 w-full"
-                              placeholder="Due"
-                            />
-                            <div className="flex flex-wrap gap-1">
-                              {labels.map((label) => (
-                                <button
-                                  key={label.id}
-                                  className={`tag px-2 py-1 rounded-md text-[0.6rem] uppercase ${
-                                    card.labelIds?.includes(label.id)
-                                      ? labelStyles[label.color]
-                                      : "bg-white/5 text-slate-400"
-                                  }`}
-                                  onClick={() =>
-                                    handleUpdateCard(card.id, {
-                                      labelIds: toggleTag(card.labelIds || [], label.id)
-                                    })
-                                  }
-                                >
-                                  {label.name}
-                                </button>
-                              ))}
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <button
-                      className="btn-secondary rounded-full px-3 py-1.5 text-xs text-slate-300 mt-3"
-                      onClick={() => handleAddCard(column.id)}
-                    >
-                      + Card
-                    </button>
                   </div>
                 ))}
               </div>
@@ -855,61 +726,17 @@ function App() {
 
               <div className="glass rounded-2xl p-5 shadow-glass">
                 <h3 className="text-base font-semibold mb-3">Labels</h3>
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="flex flex-wrap gap-2">
                   {labels.map((label) => (
-                    <div
+                    <span
                       key={label.id}
-                      className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-1"
+                      className={`tag px-2 py-1 rounded-md text-[0.6rem] uppercase ${
+                        labelStyles[label.color] || labelStyles.slate
+                      }`}
                     >
-                      <input
-                        value={label.name}
-                        onChange={(event) => handleUpdateLabel(label.id, { name: event.target.value })}
-                        className="bg-transparent text-xs text-slate-200 w-24"
-                      />
-                      <select
-                        value={label.color}
-                        onChange={(event) => handleUpdateLabel(label.id, { color: event.target.value })}
-                        className="bg-transparent text-xs text-slate-400"
-                      >
-                        {labelPalette.map((color) => (
-                          <option key={color} value={color}>
-                            {color}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        className="text-xs text-rose-300"
-                        onClick={() => handleDeleteLabel(label.id)}
-                      >
-                        ✕
-                      </button>
-                    </div>
+                      {label.name}
+                    </span>
                   ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    value={newLabelName}
-                    onChange={(event) => setNewLabelName(event.target.value)}
-                    placeholder="New label"
-                    className="glass-subtle rounded-lg px-3 py-2 text-xs text-slate-200 placeholder:text-slate-500 flex-1"
-                  />
-                  <select
-                    value={newLabelColor}
-                    onChange={(event) => setNewLabelColor(event.target.value)}
-                    className="glass-subtle rounded-lg px-3 py-2 text-xs text-slate-200"
-                  >
-                    {labelPalette.map((color) => (
-                      <option key={color} value={color}>
-                        {color}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="btn-secondary rounded-lg px-3 py-2 text-xs text-slate-200"
-                    onClick={handleAddLabel}
-                  >
-                    Add
-                  </button>
                 </div>
               </div>
             </aside>
@@ -922,26 +749,7 @@ function App() {
               <SectionHeader
                 title="Projects"
                 subtitle="Linked to kanban boards"
-                actions={
-                  <button className="btn-secondary rounded-full px-4 py-2 text-xs" onClick={handleAddProject}>
-                    + Project
-                  </button>
-                }
               />
-              <div className="space-y-3 mb-4">
-                <input
-                  value={newProjectName}
-                  onChange={(event) => setNewProjectName(event.target.value)}
-                  placeholder="Project name"
-                  className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-500"
-                />
-                <textarea
-                  value={newProjectSummary}
-                  onChange={(event) => setNewProjectSummary(event.target.value)}
-                  placeholder="Short summary"
-                  className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-500 h-20 resize-none"
-                />
-              </div>
               <div className="space-y-2">
                 {projects.map((project) => (
                   <button
@@ -967,78 +775,33 @@ function App() {
                   <SectionHeader
                     title={activeProject.name}
                     subtitle="Project detail"
-                    actions={
-                      <button
-                        className="btn-secondary rounded-full px-4 py-2 text-xs text-rose-300"
-                        onClick={() => handleDeleteProject(activeProject.id)}
-                      >
-                        Delete
-                      </button>
-                    }
                   />
                   <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
                     <div className="space-y-3">
-                      <input
-                        value={activeProject.name}
-                        onChange={(event) =>
-                          handleUpdateProject(activeProject.id, { name: event.target.value })
-                        }
-                        className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200"
-                      />
-                      <textarea
-                        value={activeProject.summary}
-                        onChange={(event) =>
-                          handleUpdateProject(activeProject.id, { summary: event.target.value })
-                        }
-                        className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200 h-32 resize-none"
-                      />
+                      <div className="glass-subtle rounded-xl px-4 py-3 text-sm text-slate-200">
+                        {activeProject.summary || "No project summary."}
+                      </div>
                       <div className="flex flex-wrap gap-2">
-                        {labels.map((label) => (
-                          <button
-                            key={label.id}
-                            className={`tag px-2 py-1 rounded-md text-[0.6rem] uppercase ${
-                              activeProject.tagIds?.includes(label.id)
-                                ? labelStyles[label.color]
-                                : "bg-white/5 text-slate-400"
-                            }`}
-                            onClick={() =>
-                              handleUpdateProject(activeProject.id, {
-                                tagIds: toggleTag(activeProject.tagIds || [], label.id)
-                              })
-                            }
-                          >
-                            {label.name}
-                          </button>
-                        ))}
+                        {(activeProject.tagIds || []).length ? (
+                          activeProject.tagIds.map((tagId) => (
+                            <TagPill key={tagId} label={labelsById[tagId]} />
+                          ))
+                        ) : (
+                          <span className="text-xs text-slate-500">No tags</span>
+                        )}
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <select
-                        value={activeProject.status}
-                        onChange={(event) =>
-                          handleUpdateProject(activeProject.id, { status: event.target.value })
-                        }
-                        className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200"
-                      >
-                        <option>Planning</option>
-                        <option>In progress</option>
-                        <option>Review</option>
-                        <option>Done</option>
-                      </select>
-                      <select
-                        value={activeProject.boardId || ""}
-                        onChange={(event) =>
-                          handleUpdateProject(activeProject.id, { boardId: event.target.value })
-                        }
-                        className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200"
-                      >
-                        <option value="">No board linked</option>
-                        {boards.map((board) => (
-                          <option key={board.id} value={board.id}>
-                            {board.name}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200">
+                        Status: <span className="text-slate-100">{activeProject.status}</span>
+                      </div>
+                      <div className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200">
+                        Board:{" "}
+                        <span className="text-slate-100">
+                          {boards.find((board) => board.id === activeProject.boardId)?.name ||
+                            "No board linked"}
+                        </span>
+                      </div>
                       {activeProject.boardId && (
                         <button
                           className="btn-secondary rounded-xl px-4 py-2 text-sm text-slate-200"
@@ -1066,11 +829,6 @@ function App() {
               <SectionHeader
                 title="Notes"
                 subtitle="Local capture with tag search"
-                actions={
-                  <button className="btn-secondary rounded-full px-4 py-2 text-xs" onClick={handleAddNote}>
-                    + Note
-                  </button>
-                }
               />
               <div className="space-y-3 mb-4">
                 <input
@@ -1119,48 +877,19 @@ function App() {
                   <SectionHeader
                     title={activeNote.title}
                     subtitle="Note detail"
-                    actions={
-                      <button
-                        className="btn-secondary rounded-full px-4 py-2 text-xs text-rose-300"
-                        onClick={() => handleDeleteNote(activeNote.id)}
-                      >
-                        Delete
-                      </button>
-                    }
                   />
                   <div className="space-y-4">
-                    <input
-                      value={activeNote.title}
-                      onChange={(event) =>
-                        handleUpdateNote(activeNote.id, { title: event.target.value })
-                      }
-                      className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200"
-                    />
-                    <textarea
-                      value={activeNote.body}
-                      onChange={(event) =>
-                        handleUpdateNote(activeNote.id, { body: event.target.value })
-                      }
-                      className="glass-subtle rounded-xl px-4 py-3 text-sm text-slate-200 h-64 resize-none"
-                    />
+                    <div className="glass-subtle rounded-xl px-4 py-3 text-sm text-slate-200 whitespace-pre-wrap">
+                      {activeNote.body || "No note content."}
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                      {labels.map((label) => (
-                        <button
-                          key={label.id}
-                          className={`tag px-2 py-1 rounded-md text-[0.6rem] uppercase ${
-                            activeNote.tagIds?.includes(label.id)
-                              ? labelStyles[label.color]
-                              : "bg-white/5 text-slate-400"
-                          }`}
-                          onClick={() =>
-                            handleUpdateNote(activeNote.id, {
-                              tagIds: toggleTag(activeNote.tagIds || [], label.id)
-                            })
-                          }
-                        >
-                          {label.name}
-                        </button>
-                      ))}
+                      {(activeNote.tagIds || []).length ? (
+                        activeNote.tagIds.map((tagId) => (
+                          <TagPill key={tagId} label={labelsById[tagId]} />
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-500">No tags</span>
+                      )}
                     </div>
                   </div>
                 </>
@@ -1177,11 +906,6 @@ function App() {
               <SectionHeader
                 title="Docs"
                 subtitle="Local documentation library"
-                actions={
-                  <button className="btn-secondary rounded-full px-4 py-2 text-xs" onClick={handleAddDoc}>
-                    + Doc
-                  </button>
-                }
               />
               <div className="space-y-3 mb-4">
                 <input
@@ -1230,48 +954,19 @@ function App() {
                   <SectionHeader
                     title={activeDoc.title}
                     subtitle="Doc detail"
-                    actions={
-                      <button
-                        className="btn-secondary rounded-full px-4 py-2 text-xs text-rose-300"
-                        onClick={() => handleDeleteDoc(activeDoc.id)}
-                      >
-                        Delete
-                      </button>
-                    }
                   />
                   <div className="space-y-4">
-                    <input
-                      value={activeDoc.title}
-                      onChange={(event) =>
-                        handleUpdateDoc(activeDoc.id, { title: event.target.value })
-                      }
-                      className="glass-subtle rounded-xl px-4 py-2 text-sm text-slate-200"
-                    />
-                    <textarea
-                      value={activeDoc.body}
-                      onChange={(event) =>
-                        handleUpdateDoc(activeDoc.id, { body: event.target.value })
-                      }
-                      className="glass-subtle rounded-xl px-4 py-3 text-sm text-slate-200 h-72 resize-none"
-                    />
+                    <div className="glass-subtle rounded-xl px-4 py-3 text-sm text-slate-200 whitespace-pre-wrap">
+                      {activeDoc.body || "No document content."}
+                    </div>
                     <div className="flex flex-wrap gap-2">
-                      {labels.map((label) => (
-                        <button
-                          key={label.id}
-                          className={`tag px-2 py-1 rounded-md text-[0.6rem] uppercase ${
-                            activeDoc.tagIds?.includes(label.id)
-                              ? labelStyles[label.color]
-                              : "bg-white/5 text-slate-400"
-                          }`}
-                          onClick={() =>
-                            handleUpdateDoc(activeDoc.id, {
-                              tagIds: toggleTag(activeDoc.tagIds || [], label.id)
-                            })
-                          }
-                        >
-                          {label.name}
-                        </button>
-                      ))}
+                      {(activeDoc.tagIds || []).length ? (
+                        activeDoc.tagIds.map((tagId) => (
+                          <TagPill key={tagId} label={labelsById[tagId]} />
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-500">No tags</span>
+                      )}
                     </div>
                   </div>
                 </>
