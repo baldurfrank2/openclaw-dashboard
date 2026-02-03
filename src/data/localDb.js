@@ -104,126 +104,84 @@ export const clearStore = (storeName) =>
 const now = () => new Date().toISOString();
 
 const seedData = () => {
-  const boardId = "board-alpha";
+  const boardId = "board-ai-intel";
   const columns = [
     { id: "col-backlog", boardId, name: "Backlog", order: 1 },
-    { id: "col-progress", boardId, name: "In Progress", order: 2 },
+    { id: "col-today", boardId, name: "Today", order: 2 },
     { id: "col-review", boardId, name: "Review", order: 3 },
-    { id: "col-done", boardId, name: "Done", order: 4 }
+    { id: "col-published", boardId, name: "Published", order: 4 }
   ];
 
   const labels = [
-    { id: "label-research", name: "Research", color: "purple" },
-    { id: "label-security", name: "Security", color: "rose" },
-    { id: "label-design", name: "Design", color: "pink" },
-    { id: "label-core", name: "Core", color: "cyan" },
-    { id: "label-data", name: "Data", color: "blue" },
-    { id: "label-docs", name: "Docs", color: "green" },
-    { id: "label-ops", name: "Ops", color: "amber" },
-    { id: "label-platform", name: "Platform", color: "teal" }
+    { id: "label-sources", name: "Sources", color: "blue" },
+    { id: "label-scan", name: "Scan", color: "cyan" },
+    { id: "label-extract", name: "Extract", color: "purple" },
+    { id: "label-summary", name: "Summary", color: "green" },
+    { id: "label-publish", name: "Publish", color: "amber" }
   ];
 
   const cards = [
     {
-      id: "card-alpha-1",
+      id: "card-intel-1",
       boardId,
       columnId: "col-backlog",
-      title: "Launch alpha onboarding",
-      description: "Draft the onboarding checklist and first-run tutorial.",
-      labelIds: ["label-research"],
-      owner: "Avery",
-      due: "2d",
-      order: 1,
-      createdAt: now(),
-      updatedAt: now()
-    },
-    {
-      id: "card-alpha-2",
-      boardId,
-      columnId: "col-backlog",
-      title: "Audit capture permissions",
-      description: "Review access scopes for new capture endpoints.",
-      labelIds: ["label-security"],
-      owner: "Riley",
-      due: "3d",
-      order: 2,
-      createdAt: now(),
-      updatedAt: now()
-    },
-    {
-      id: "card-alpha-3",
-      boardId,
-      columnId: "col-backlog",
-      title: "UX pass for mission map",
-      description: "Tighten layout spacing and empty states.",
-      labelIds: ["label-design"],
-      owner: "Jules",
-      due: "5d",
-      order: 3,
-      createdAt: now(),
-      updatedAt: now()
-    },
-    {
-      id: "card-alpha-4",
-      boardId,
-      columnId: "col-progress",
-      title: "Realtime sync for memory layer",
-      description: "Stream deltas into the new memory renderer.",
-      labelIds: ["label-core"],
-      owner: "Morgan",
+      title: "Define target subreddits",
+      description: "Lock in the core AI/business/workflow subreddits and filters.",
+      labelIds: ["label-sources"],
+      owner: "Damian",
       due: "Today",
       order: 1,
       createdAt: now(),
       updatedAt: now()
     },
     {
-      id: "card-alpha-5",
+      id: "card-intel-2",
       boardId,
-      columnId: "col-progress",
-      title: "Telemetry dashboards",
-      description: "Ship a first pass of KPI panels.",
-      labelIds: ["label-data"],
-      owner: "Kai",
-      due: "1d",
-      order: 2,
-      createdAt: now(),
-      updatedAt: now()
-    },
-    {
-      id: "card-alpha-6",
-      boardId,
-      columnId: "col-review",
-      title: "Mission briefing templates",
-      description: "Make sure briefs sync across squads.",
-      labelIds: ["label-docs"],
-      owner: "Quinn",
-      due: "Today",
+      columnId: "col-today",
+      title: "Daily scan + shortlist",
+      description: "Review top posts, shortlist 5–10 with high signal.",
+      labelIds: ["label-scan"],
+      owner: "Ex-Machina",
+      due: "Daily",
       order: 1,
       createdAt: now(),
       updatedAt: now()
     },
     {
-      id: "card-alpha-7",
+      id: "card-intel-3",
       boardId,
-      columnId: "col-review",
-      title: "Agent scheduling logic",
-      description: "Review the new scheduler rules.",
-      labelIds: ["label-ops"],
-      owner: "Sam",
-      due: "2d",
+      columnId: "col-today",
+      title: "Extract insights + takeaways",
+      description: "Summarize key insights and actionable takeaways.",
+      labelIds: ["label-extract"],
+      owner: "Ex-Machina",
+      due: "Daily",
       order: 2,
       createdAt: now(),
       updatedAt: now()
     },
     {
-      id: "card-alpha-8",
+      id: "card-intel-4",
       boardId,
-      columnId: "col-done",
-      title: "Capture streams upgrade",
-      description: "Upgraded ingest buffers to v2.",
-      labelIds: ["label-platform"],
-      owner: "Logan",
-      due: "Done",
+      columnId: "col-review",
+      title: "Draft daily summary",
+      description: "Write the final summary in Notes/Docs for review.",
+      labelIds: ["label-summary"],
+      owner: "Damian",
+      due: "Daily",
+      order: 1,
+      createdAt: now(),
+      updatedAt: now()
+    },
+    {
+      id: "card-intel-5",
+      boardId,
+      columnId: "col-published",
+      title: "Share to Damian",
+      description: "Send the daily intel summary once approved.",
+      labelIds: ["label-publish"],
+      owner: "Ex-Machina",
+      due: "Daily",
       order: 1,
       createdAt: now(),
       updatedAt: now()
@@ -233,7 +191,7 @@ const seedData = () => {
   const boards = [
     {
       id: boardId,
-      name: "Mission Control",
+      name: "Daily AI Subreddit Intel",
       columnOrder: columns.map((column) => column.id),
       createdAt: now(),
       updatedAt: now()
@@ -242,55 +200,32 @@ const seedData = () => {
 
   const projects = [
     {
-      id: "project-aurora",
-      name: "Aurora Capture",
-      summary: "Scale capture throughput and improve observability.",
+      id: "project-ai-intel",
+      name: "Daily AI Subreddit Intel",
+      summary: "Scan key AI subreddits daily, extract high-signal insights, and deliver a concise brief.",
       boardId,
       status: "In progress",
-      tagIds: ["label-data", "label-platform"],
-      updatedAt: now()
-    },
-    {
-      id: "project-sentinel",
-      name: "Sentinel Briefs",
-      summary: "Standardize mission brief templates across squads.",
-      boardId,
-      status: "Review",
-      tagIds: ["label-docs"],
+      tagIds: ["label-scan", "label-summary"],
       updatedAt: now()
     }
   ];
 
   const notes = [
     {
-      id: "note-1",
-      title: "Standup highlights",
-      body: "Keep focus on capture stability. Pair with ops on alert tuning.",
-      tagIds: ["label-ops"],
-      updatedAt: now()
-    },
-    {
-      id: "note-2",
-      title: "Design pass",
-      body: "Mission map needs stronger empty states and highlight strokes.",
-      tagIds: ["label-design"],
+      id: "note-daily-intel",
+      title: "Daily Findings (Today)",
+      body: "Drop today’s top insights here. Replace with date-stamped entries.",
+      tagIds: ["label-summary"],
       updatedAt: now()
     }
   ];
 
   const docs = [
     {
-      id: "doc-1",
-      title: "Mission Briefing v1",
-      body: "Briefing template draft. Include goals, risks, and success metrics.",
-      tagIds: ["label-docs"],
-      updatedAt: now()
-    },
-    {
-      id: "doc-2",
-      title: "Capture Pipeline Spec",
-      body: "Spec v2 introduces streaming validation and retry hooks.",
-      tagIds: ["label-platform", "label-data"],
+      id: "doc-sources",
+      title: "Subreddit Sources & Filters",
+      body: "List target subreddits, filters, and ranking criteria here.",
+      tagIds: ["label-sources"],
       updatedAt: now()
     }
   ];
